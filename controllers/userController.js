@@ -1,7 +1,10 @@
-const registerValidator = require('../validator/registerValidate')
-const User = require('../model/User')
-const { use } = require('passport')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+const User = require('../model/User')
+const { serverError, resourceError } = require('../util/error')
+const registerValidator = require('../validator/registerValidate')
+const loginValidator = require('../validator/loginValidation')
 
 const register = (req, res)=>{
     
@@ -16,17 +19,12 @@ const register = (req, res)=>{
         User.findOne({email})
             .then(user =>{
                 if(user){
-                    return res.status(400).json({
-                        message: 'User Already exist'
-                    })
+                    return resourceError(res, 'User Already exist')
                 }
 
                 bcrypt.hash(password, 11, (error, hash)=>{
                     if(error){
-                        return res.status(500).json({
-                            message: 'Server Error Occured',
-                            error
-                        })
+                        return serverError(res, error)
                     }
 
                     const user = new User({
@@ -41,20 +39,10 @@ const register = (req, res)=>{
                                 message: 'User created '
                             })
                         })
-                        .catch(error =>{
-                            res.status(400).json({
-                                message: 'Server Error Occured',
-                                error
-                            })
-                        })
+                        .catch(error => serverError(res, error))
                 })
             })
-            .catch(error =>{
-                res.status(400).json({
-                    message: 'Server Error Occured',
-                    error
-                })
-            })
+            .catch(error => serverError(res, error))
     }
     //Check for Duplicate
     //New user object
@@ -62,6 +50,49 @@ const register = (req, res)=>{
     //response back with new data
 }
 
+const login = (req, res) =>{
+    const { email, password } = req.body
+
+    const validate = loginValidator({email, password})
+
+    if(!validate.isValid){
+        return res.json(validate.error)
+    }
+
+    User.findOne({email})
+        .then(user =>{
+            if(!user){
+                return resourceError(res, 'User not registered')
+            }
+            
+            bcrypt.compare(password, user.password, (error, result)=>{
+                if(error){
+                    return serverError(res, error)
+                }
+
+                if(!result){
+                    return resourceError(res, 'Password dosen\'t match')
+                }
+
+                const token = jwt.sign({
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email
+                }, 'SECRET', {expiresIn: '2h'})
+
+                res.status(200).json({
+                    message: 'Login Successfully',
+                    token: `Bearer ${token}`
+                })
+
+            })
+
+        })
+        .catch(error => serverError(res, error))
+
+} 
+
 module.exports = {
-    register
+    register,
+    login
 }

@@ -36,7 +36,7 @@ const register = (req, res)=>{
                     user.save()
                         .then(user =>{
                             res.status(201).json({
-                                message: 'User created '
+                                message: 'User created Successfully'
                             })
                         })
                         .catch(error => serverError(res, error))
@@ -56,7 +56,7 @@ const login = (req, res) =>{
     const validate = loginValidator({email, password})
 
     if(!validate.isValid){
-        return res.json(validate.error)
+        return res.status(400).json(validate.error)
     }
 
     User.findOne({email})

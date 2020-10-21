@@ -1,21 +1,21 @@
 import {
     SET_USER,
     USER_ERROR
-} from './registerTypes'
+} from './authTypes'
 
 
 const initialState = {
     isAuthenticated: false,
-    users: {},
+    user: {},
     error: {}
 }
 
-const registerReducer = (state = initialState, action) => {
+const authReducer = (state = initialState, action) => {
     switch(action.type){
         case SET_USER: {
             return{
-                users: action.payload.user,
-                isAuthenticated: Object.keys(action.payload.user).length === 0,
+                user: action.payload.user,
+                isAuthenticated: Object.keys(action.payload.user).length != 0,
                 error: {}
             }
         }
@@ -32,4 +32,4 @@ const registerReducer = (state = initialState, action) => {
 }
 
 
-export default registerReducer
+export default authReducer

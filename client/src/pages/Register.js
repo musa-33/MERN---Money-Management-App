@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-
-import { register} from '../redux'
+import { register } from '../redux'
 
 class Register extends Component {
 
@@ -38,6 +37,7 @@ class Register extends Component {
 
     render() {
         const { name, email, password, confirmPassword, error} = this.state
+        
         return (
             <div className='row'>
                 <div className='col-md-6 offset-md-2'>
@@ -118,13 +118,13 @@ class Register extends Component {
 
 const mapStateToProps = state =>{
     return{
-        error: state.register.error
+        error: state.auth.error
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
-        register: (user) => dispatch(register(user))
+        register: (user, history) => dispatch(register(user, history))
     }
 }
 

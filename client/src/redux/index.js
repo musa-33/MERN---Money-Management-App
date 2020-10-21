@@ -1,1 +1,1 @@
-export { register } from './register/registerActions'
+export { register, login, logout } from './auth/authActions'

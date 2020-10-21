@@ -5,7 +5,21 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux'
 import store from './redux/store'
+import jwtDecode from 'jwt-decode'
+import { SET_USER } from './redux/auth/authTypes'
+import setAuthToken from './utils/setAuthToken'
 
+const token = localStorage.getItem('auth_token')
+if(token){
+  const decoded = jwtDecode(token)
+  setAuthToken(token)
+  store.dispatch({
+    type: SET_USER,
+    payload: {
+      user: decoded
+    }
+  })
+}
 
 ReactDOM.render(
   <React.StrictMode>
